@@ -1,0 +1,18 @@
+[project]
+name = "sudoku-solver"
+version = "0.1.0"
+description = "Computer vision Sudoku solver from images with real-time solutions"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=1.26.4",
+    "opencv-python>=4.11.0.86",
+    "pytesseract>=0.3.13",
+    "streamlit>=1.42.0",
+]
+license = { file = "LICENSE" }
+
+[dependency-groups]
+dev = [
+    "matplotlib>=3.10.0",
+]

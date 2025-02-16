@@ -1,0 +1,21 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv
+
+# Type checking and linter caches
+.mypy_cache/
+.ruff_cache/
+
+# Training checkpoints
+*.checkpoint
+*.ckpt
+checkpoints/
