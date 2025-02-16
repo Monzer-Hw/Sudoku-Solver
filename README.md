@@ -38,6 +38,7 @@ sudoku-solver/
 ├── notebooks/
 │ └── prototype.ipynb
 ├── src/
+│ ├── __init__.py
 │ ├── core/
 │ │ ├── __init__.py
 │ │ ├── detector.py      # Grid detection & processing
