@@ -40,10 +40,10 @@ sudoku-solver/
 ├── src/
 │ ├── core/
 │ │ ├── __init__.py
-│ │ ├── sudoku_detector.py      # Grid detection & processing
-│ │ ├── sudoku_ocr.py           # Digit recognition
-│ │ ├── sudoku_solver.py        # Puzzle solving logic
-│ │ └── sudoku_visualizer.py    # Solution visualization
+│ │ ├── detector.py      # Grid detection & processing
+│ │ ├── ocr.py           # Digit recognition
+│ │ ├── solver.py        # Puzzle solving logic
+│ │ └── visualizer.py    # Solution visualization
 │ └── io/
 │   ├── __init__.py           
 │   └── sudoku_ui.py          

@@ -28,7 +28,6 @@ class SudokuApp:
         self.ocr = SudokuTesseract()
         self.solver = SudokuSolver()
         self.visualizer = SudokuVisualizer()
-        # self.mask_image_path = "assets/mask.png"
         self.mask_image_path = os.path.join(
             os.path.dirname(__file__), ".", "assets", "mask.png"
         )

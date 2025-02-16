@@ -3,9 +3,10 @@ Provides the SudokuDetector class for image preprocessing, grid detection,
 perspective transformation, and cell extraction.
 """
 
+from typing import Tuple, Optional
+
 import cv2
 import numpy as np
-from typing import Tuple, Optional
 
 
 class SudokuDetector:
