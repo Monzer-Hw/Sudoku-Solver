@@ -24,10 +24,22 @@ this will create a virtual environment and install the required dependencies.
 
 
 ## Usage 🚀
-- Activate your virtual environment
-- Run the Streamlit app:
+- Start the FastAPI server:
     ```bash
-    streamlit run app.py
+    uv run uvicorn src.api.main:app --reload
+    ```
+
+- Open interactive API docs:
+    - `http://127.0.0.1:8000/docs`
+
+- Solve (JSON response):
+    ```bash
+    curl -F "file=@assets/examples/1.jpg" http://127.0.0.1:8000/solve
+    ```
+
+- Solve and return overlaid image (PNG):
+    ```bash
+    curl -o solved.png -F "file=@assets/examples/1.jpg" "http://127.0.0.1:8000/solve?return_image=true"
     ```
 
 
@@ -45,10 +57,9 @@ sudoku-solver/
 │ │ ├── ocr.py           # Digit recognition
 │ │ ├── solver.py        # Puzzle solving logic
 │ │ └── visualizer.py    # Solution visualization
-│ └── io/
-│   ├── __init__.py           
-│   └── sudoku_ui.py          
-├── app.py                    # Streamlit application entry point
+│ └── api/
+│   ├── __init__.py
+│   └── main.py          # FastAPI application entry point
 ├── pyproject.toml            # Dependencies
 ├── .python-version
 ├── README.md
