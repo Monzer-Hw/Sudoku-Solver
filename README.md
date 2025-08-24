@@ -59,8 +59,19 @@ sudoku-solver/
 │ │ └── visualizer.py    # Solution visualization
 │ └── api/
 │   ├── __init__.py
+│   ├── routes/
+│   │ ├── __init__.py
+│   │ ├── base.py
+│   │ └── sudoku.py
+│   ├── schemas/
+│   │ ├── __init__.py
+│   │ └── sudoku.py
+│   ├── config.py
 │   └── main.py          # FastAPI application entry point
 ├── pyproject.toml            # Dependencies
+├── .env.example
+├── requirements.txt
+├── .gitignore
 ├── .python-version
 ├── README.md
 ├── LICENSE
