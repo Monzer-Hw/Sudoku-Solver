@@ -1,18 +1,17 @@
 import io
-import cv2
-import numpy as np
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+import cv2
+import numpy as np
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
-from src.api.schemas.sudoku import SolveResponse
-from src.api.config import Settings, get_settings
 
+from src.api.config import Settings, get_settings
+from src.api.schemas.sudoku import SolveResponse
 from src.core.detector import SudokuDetector
 from src.core.ocr import SudokuTesseract
 from src.core.solver import SudokuSolver
 from src.core.visualizer import SudokuVisualizer
-
 
 sudoku_router = APIRouter(
     prefix="/sudoku",
@@ -39,7 +38,7 @@ def _run_pipeline(image_bgr: np.ndarray) -> tuple:
     try:
         solved_grid = SudokuSolver.solve(sudoku_grid)
     except ValueError as e:
-        raise HTTPException(status_code=422, detail=str(e))
+        raise HTTPException(status_code=422, detail=str(e)) from e
 
     return original, warped, sudoku_grid, solved_grid, grid_contour, cell_size
 

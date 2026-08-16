@@ -3,8 +3,6 @@ Provides the SudokuDetector class for image preprocessing, grid detection,
 perspective transformation, and cell extraction.
 """
 
-from typing import Tuple, Optional
-
 import cv2
 import numpy as np
 
@@ -14,15 +12,19 @@ class SudokuDetector:
     A class to preprocess an image and detect the Sudoku grid.
     """
 
+    # A grid smaller than this cannot be split into 9 usable rows and columns.
+    MIN_GRID_SIDE = 27
+
     @staticmethod
     def preprocess_image(
         image: np.ndarray,
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
         Reads an image from the given path and applies preprocessing steps.
 
         :param image_path: Path to the input image.
-        :return: Tuple of (original image, grayscale image, blurred image, thresholded image).
+        :return: Tuple of (original image, grayscale image, blurred image,
+                 thresholded image).
         """
 
         # Convert from BGR to RGB and create a copy of the original image.
@@ -38,11 +40,19 @@ class SudokuDetector:
         return original, gray, blur, thresh
 
     @staticmethod
-    def find_grid_contour(thresh_img: np.ndarray) -> Optional[np.ndarray]:
+    def find_grid_contour(
+        thresh_img: np.ndarray, min_area_ratio: float = 0.01
+    ) -> np.ndarray | None:
         """
-        Finds the largest 4-point contour in the thresholded image assumed to be the Sudoku grid.
+        Finds the largest 4-point contour in the thresholded image, assumed to
+        be the Sudoku grid.
+
+        Quadrilaterals too small to be a grid are ignored, so that noise in an
+        image without a Sudoku grid is reported as "not found" instead of
+        producing a degenerate warp that cannot be split into cells.
 
         :param thresh_img: Thresholded binary image.
+        :param min_area_ratio: Minimum share of the image a candidate must cover.
         :return: An array of 4 points if found; otherwise, None.
         """
         contours, _ = cv2.findContours(
@@ -50,19 +60,29 @@ class SudokuDetector:
         )
         contours = sorted(contours, key=cv2.contourArea, reverse=True)
 
+        image_area = thresh_img.shape[0] * thresh_img.shape[1]
         for cnt in contours:
             peri = cv2.arcLength(cnt, True)
             approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
-            if len(approx) == 4:
-                return approx.reshape(4, 2)
+            if len(approx) != 4:
+                continue
+
+            _, _, width, height = cv2.boundingRect(approx)
+            if min(width, height) < SudokuDetector.MIN_GRID_SIDE:
+                continue
+            if cv2.contourArea(approx) < min_area_ratio * image_area:
+                continue
+
+            return approx.reshape(4, 2)
         return None
 
     @staticmethod
     def perspective_transform(
         img: np.ndarray, points: np.ndarray
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """
-        Applies a perspective transformation to obtain a top-down view of the Sudoku grid.
+        Applies a perspective transformation to obtain a top-down view of the
+        Sudoku grid.
 
         :param img: Original image.
         :param points: 4 points representing the grid contour.
@@ -91,7 +111,7 @@ class SudokuDetector:
         return warped, M
 
     @staticmethod
-    def extract_cells(warped_img: np.ndarray) -> Tuple[np.ndarray, int]:
+    def extract_cells(warped_img: np.ndarray) -> tuple[np.ndarray, int]:
         """
         Splits the warped Sudoku grid into 81 individual cell images.
 

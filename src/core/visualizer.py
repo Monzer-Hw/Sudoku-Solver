@@ -1,5 +1,6 @@
 """
-Provides the SudokuVisualizer class for overlaying the Sudoku solution onto the original image.
+Provides the SudokuVisualizer class for overlaying the Sudoku solution onto
+the original image.
 """
 
 import cv2

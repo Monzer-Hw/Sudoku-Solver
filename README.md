@@ -34,21 +34,75 @@ this will create a virtual environment and install the required dependencies.
 
 - Solve (JSON response):
     ```bash
-    curl -F "file=@assets/examples/1.jpg" http://127.0.0.1:8000/solve
+    curl -F "file=@assets/examples/1.jpg" http://127.0.0.1:8000/sudoku/solve
     ```
 
 - Solve and return overlaid image (PNG):
     ```bash
-    curl -o solved.png -F "file=@assets/examples/1.jpg" "http://127.0.0.1:8000/solve?return_image=true"
+    curl -o solved.png -F "file=@assets/examples/1.jpg" "http://127.0.0.1:8000/sudoku/solve:image"
     ```
+
+> Tesseract is located via the `TESSERACT_CMD` environment variable, falling
+> back to the binary on `PATH` and then to the default Windows install path.
+
+
+## Testing 🧪
+The suite is split into three layers, selectable with pytest markers:
+
+| Marker | Scope |
+|--------|-------|
+| `unit` | Single module in isolation (solver, detector, OCR, visualizer, config). |
+| `integration` | API routes and the core pipeline wired together, with OCR stubbed. |
+| `e2e` | Real HTTP requests over real example photos using the installed Tesseract. |
+
+```bash
+# Everything
+uv run pytest
+
+# Fast feedback: no OCR binary required
+uv run pytest -m "unit or integration"
+
+# Full stack against assets/examples (skipped when Tesseract is missing)
+uv run pytest -m e2e
+
+# With a coverage report
+uv run pytest --cov=src --cov-report=term-missing
+```
+
+Lint, format and type checks:
+```bash
+uv run ruff format --check .
+uv run ruff check .
+uv run mypy src tests
+```
+
+
+## Continuous Integration 🔁
+`.github/workflows/ci.yml` runs on every push to `master` and on every pull request:
+
+- **Lint & format** — `ruff format --check`, `ruff check`, `mypy`.
+- **Tests** — unit/integration with a 90% coverage floor, plus the e2e suite
+  against a Tesseract installed on the runner; coverage reports are uploaded as
+  artifacts.
+- **Build** — `uv build` produces the sdist and wheel, which are installed into a
+  clean environment to verify the app imports.
 
 
 ## Project Structure 📁
 ```
 sudoku-solver/
+├── .github/
+│ └── workflows/
+│   └── ci.yml              # Lint & format, tests, build
 ├── assets/
 ├── notebooks/
 │ └── prototype.ipynb
+├── tests/
+│ ├── conftest.py           # Shared fixtures
+│ ├── helpers.py            # Synthetic grid images & board checks
+│ ├── unit/
+│ ├── integration/
+│ └── e2e/
 ├── src/
 │ ├── __init__.py
 │ ├── core/
