@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.routes import base, sudoku
 
-
 app = FastAPI()
 
 app.add_middleware(
