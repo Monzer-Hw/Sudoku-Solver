@@ -78,7 +78,7 @@ uv run mypy src tests
 
 
 ## Continuous Integration 🔁
-`.github/workflows/ci.yml` runs on every push to `master` and on every pull request:
+`.github/workflows/ci.yml` runs on every push to `main` and on every pull request:
 
 - **Lint & format** — `ruff format --check`, `ruff check`, `mypy`.
 - **Tests** — unit/integration with a 90% coverage floor, plus the e2e suite
