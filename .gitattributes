@@ -1,0 +1,4 @@
+# The prototype notebook stores base64 cell outputs, so its ~1.3 MB dwarfs the
+# ~16 KB of Python under src/. GitHub Linguist ranks languages by bytes, which
+# made the repo read as 98.8% Jupyter Notebook. Keep it out of the stats.
+notebooks/** linguist-vendored
