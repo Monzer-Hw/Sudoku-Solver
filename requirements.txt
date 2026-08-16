@@ -1,4 +1,9 @@
+# Direct runtime dependencies, mirroring [project].dependencies in pyproject.toml.
+# Provided for pip users; `uv sync` against uv.lock is the reproducible install.
+fastapi>=0.116.1
 numpy>=1.26.4
 opencv-python>=4.11.0.86
+pydantic-settings>=2.10.1
 pytesseract>=0.3.13
-streamlit>=1.42.0
+python-multipart>=0.0.20
+uvicorn[standard]>=0.35.0
