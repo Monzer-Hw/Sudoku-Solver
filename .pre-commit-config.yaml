@@ -1,0 +1,61 @@
+# Install with `just hooks`; run over the whole repo with `just hooks-run`.
+# The pre-commit stage mirrors the CI "Lint & format" job; the pre-push stage
+# adds the unit+integration suite behind the same 90% coverage floor as CI.
+#
+# ruff, mypy and pytest run as local `uv run` hooks on purpose: that way the
+# hooks use the versions pinned in uv.lock, so a hook can never pass with a
+# different tool version than CI.
+
+default_install_hook_types: [pre-commit, pre-push]
+exclude: ^notebooks/
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+        args: [--maxkb=2048]
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-toml
+      - id: check-yaml
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+
+  - repo: local
+    hooks:
+      - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format --force-exclude
+        language: system
+        types_or: [python, pyi]
+
+      - id: ruff-check
+        name: ruff check
+        entry: uv run ruff check --fix --force-exclude
+        language: system
+        types_or: [python, pyi]
+
+      - id: mypy
+        name: mypy
+        entry: uv run mypy src tests
+        language: system
+        types_or: [python, pyi]
+        pass_filenames: false
+
+      # Fails when pyproject.toml changed without a matching uv.lock update.
+      - id: uv-lock-check
+        name: uv lock --check
+        entry: uv lock --check
+        language: system
+        files: ^(pyproject\.toml|uv\.lock)$
+        pass_filenames: false
+
+      - id: pytest
+        name: pytest (unit + integration)
+        entry: uv run pytest -m "unit or integration" --cov=src --cov-report=term-missing --cov-fail-under=90
+        language: system
+        types_or: [python, pyi]
+        pass_filenames: false
+        stages: [pre-push]
