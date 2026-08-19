@@ -58,10 +58,17 @@ jobs:
         with:
           enable-cache: true
 
+      # Only the e2e suite shells out to a real tesseract binary: the unit tests
+      # monkeypatch pytesseract.image_to_string and the integration tests use the
+      # stub_ocr fixture. Installing it for the unit-integration leg cost 14-46s
+      # per run and bought nothing. tesseract-ocr-eng is named explicitly because
+      # it is only a *recommended* dependency of tesseract-ocr.
       - name: Install Tesseract OCR
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y tesseract-ocr
+        if: matrix.suite == 'e2e'
+        uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
+        with:
+          packages: tesseract-ocr tesseract-ocr-eng
+          version: 1
 
       - name: Install dependencies
         run: uv sync
