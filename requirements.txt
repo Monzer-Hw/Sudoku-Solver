@@ -5,5 +5,5 @@ numpy>=1.26.4
 opencv-python-headless>=4.11.0.86,<5
 pydantic-settings>=2.10.1
 pytesseract>=0.3.13
-python-multipart>=0.0.20
+python-multipart>=0.0.31
 uvicorn[standard]>=0.35.0
