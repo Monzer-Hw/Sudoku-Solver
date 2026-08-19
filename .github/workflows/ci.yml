@@ -105,3 +105,62 @@ jobs:
         with:
           name: dist
           path: dist/
+
+  docker:
+    name: Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build the image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: sudoku-solver:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Start the container and wait for it to answer
+        run: |
+          docker run -d --name sudoku -p 8000:8000 sudoku-solver:ci
+          for _ in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8000/base/ >/dev/null 2>&1; then
+              echo "container is answering on /base/"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "container never became reachable" >&2
+          exit 1
+
+      # The real check: a photo goes in and a solved grid comes out, which only
+      # works if tesseract, its English traineddata and assets/mask.png all
+      # resolved correctly inside the image.
+      - name: Solve a real photo through the container
+        run: |
+          curl -fsS -F "file=@assets/examples/1.jpg" \
+            http://127.0.0.1:8000/sudoku/solve -o response.json
+          cat response.json
+          python - <<'PY'
+          import json
+
+          data = json.load(open("response.json"))
+          assert data["solved"] is True, data
+          grid = data["grid"]
+          assert len(grid) == 9, grid
+          assert all(len(row) == 9 for row in grid), grid
+          assert all(1 <= value <= 9 for row in grid for value in row), grid
+          print("container returned a complete 9x9 solution")
+          PY
+
+      - name: Container logs on failure
+        if: failure()
+        run: docker logs sudoku
+
+      - name: Remove the container
+        if: always()
+        run: docker rm -f sudoku

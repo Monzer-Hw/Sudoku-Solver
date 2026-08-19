@@ -2,7 +2,7 @@
 # Provided for pip users; `uv sync` against uv.lock is the reproducible install.
 fastapi>=0.116.1
 numpy>=1.26.4
-opencv-python>=4.11.0.86
+opencv-python-headless>=4.11.0.86,<5
 pydantic-settings>=2.10.1
 pytesseract>=0.3.13
 python-multipart>=0.0.20

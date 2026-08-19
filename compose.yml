@@ -1,0 +1,17 @@
+# Local convenience wrapper around the image: `just docker-up`.
+# The image already ships working defaults, so this adds only port mapping and
+# an optional .env override.
+
+services:
+  api:
+    build: .
+    image: sudoku-solver:local
+    ports:
+      - "8000:8000"
+    # Optional: the Dockerfile bakes in defaults for APP_NAME, APP_VERSION and
+    # FILE_ALLOWED_TYPES, so the service starts fine without a .env. When one
+    # exists it wins, which is how you point at a different config locally.
+    env_file:
+      - path: .env
+        required: false
+    restart: unless-stopped

@@ -80,3 +80,15 @@ build:
 # Delete caches and build artifacts.
 clean:
     uv run python scripts/clean.py
+
+# Build the container image (needs a running Docker daemon).
+docker-build:
+    docker build -t sudoku-solver:local .
+
+# Run the built image on :8000; Ctrl-C stops and removes it.
+docker-run:
+    docker run --rm -p 8000:8000 sudoku-solver:local
+
+# Build and start the service through compose, reading .env when present.
+docker-up:
+    docker compose up --build
