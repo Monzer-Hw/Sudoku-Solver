@@ -1,0 +1,57 @@
+# Everything the image does not need. Keeping the build context small speeds up
+# every build, and excluding .venv is load-bearing: copying a host virtualenv
+# into the image would both bloat it and break it, since virtualenvs hardcode
+# absolute paths and platform-specific binaries.
+
+.venv/
+venv/
+env/
+
+.git/
+.gitignore
+.gitattributes
+.github/
+
+__pycache__/
+*.py[oc]
+*.egg-info/
+build/
+dist/
+wheels/
+
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Runtime-only image: tests, notebooks and maintenance scripts stay out.
+tests/
+notebooks/
+scripts/
+
+# assets/mask.png is copied explicitly by the Dockerfile; the example photos and
+# the README diagram are documentation and test fixtures, not runtime inputs.
+assets/examples/
+assets/workflow.png
+
+# Local config. The image ships defaults as ENV and compose passes a .env
+# through at run time, so baking one in would only cause confusion.
+.env
+.env.example
+
+# Docs and tooling that have no role inside the container.
+README.md
+LICENSE
+CLAUDE.md
+justfile
+requirements.txt
+.python-version
+.pre-commit-config.yaml
+Dockerfile
+.dockerignore
+compose.yml
+
+# Agent tooling and worktrees.
+.claude/

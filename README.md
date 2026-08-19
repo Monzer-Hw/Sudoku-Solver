@@ -49,6 +49,9 @@ Every routine command lives in the `justfile`; `just` on its own lists them.
 | `just check` | Everything CI enforces, in CI order |
 | `just build` | `uv build` |
 | `just clean` | Delete caches and build artifacts |
+| `just docker-build` | Build the container image |
+| `just docker-run` | Run the built image on `:8000` |
+| `just docker-up` | Build and start the service through compose |
 
 
 ## Git hooks 🪝
@@ -86,6 +89,33 @@ Skip a hook run with `git commit --no-verify` only when you know why.
 
 > Tesseract is located via the `TESSERACT_CMD` environment variable, falling
 > back to the binary on `PATH` and then to the default Windows install path.
+
+
+## Docker 🐳
+The image ships Tesseract and its English traineddata, so nothing needs to be
+installed on the host beyond Docker itself.
+
+```bash
+just docker-build    # docker build -t sudoku-solver:local .
+just docker-run      # docker run --rm -p 8000:8000 sudoku-solver:local
+just docker-up       # build and start through compose
+```
+
+The endpoints are then the same ones as above, on `:8000`:
+```bash
+curl -F "file=@assets/examples/1.jpg" http://127.0.0.1:8000/sudoku/solve
+```
+
+`APP_NAME`, `APP_VERSION` and `FILE_ALLOWED_TYPES` are baked in as defaults, so
+the container starts without a `.env`. Override them with `docker run -e`, or
+create a `.env` and use compose — it reads one when present and starts fine
+without it.
+
+The build is two-stage: dependencies go into a virtualenv, then only that
+virtualenv, `src/` and `assets/mask.png` are copied into a clean runtime image
+that runs as a non-root user. The project is deliberately **not** pip-installed,
+because `assets/mask.png` is located relative to `src/api/routes/sudoku.py` and
+would not resolve from `site-packages`.
 
 
 ## Testing 🧪
@@ -131,6 +161,10 @@ The same layers are available as `just test`, `just test-e2e`, `just test-all`,
   artifacts.
 - **Build** — `uv build` produces the sdist and wheel, which are installed into a
   clean environment to verify the app imports.
+- **Docker image** — builds the image, starts the container and posts a real
+  example photo to `/sudoku/solve`, asserting a complete 9x9 solution comes
+  back. That is what proves Tesseract, its traineddata and the `assets/mask.png`
+  lookup all work inside the image, rather than only on a developer machine.
 
 
 ## Project Structure 📁
@@ -138,7 +172,7 @@ The same layers are available as `just test`, `just test-e2e`, `just test-all`,
 sudoku-solver/
 ├── .github/
 │ └── workflows/
-│   └── ci.yml              # Lint & format, tests, build
+│   └── ci.yml              # Lint & format, tests, build, Docker image
 ├── assets/
 ├── notebooks/
 │ └── prototype.ipynb
@@ -171,6 +205,9 @@ sudoku-solver/
 │   └── main.py          # FastAPI application entry point
 ├── pyproject.toml            # Dependencies
 ├── justfile                  # Task runner recipes
+├── Dockerfile                # Two-stage image with Tesseract baked in
+├── .dockerignore
+├── compose.yml               # Single-service local wrapper
 ├── .pre-commit-config.yaml   # Git hook definitions
 ├── .env.example
 ├── requirements.txt
